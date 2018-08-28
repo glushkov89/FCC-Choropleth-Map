@@ -25,18 +25,27 @@
 
 document.addEventListener("DOMContentLoaded", function() {
 	const d3 = require("d3");
+
 	d3.json(
 		"https://raw.githubusercontent.com/no-stack-dub-sack/testable-projects-fcc/master/src/data/choropleth_map/counties.json"
-	).then((json) => {
-		console.log("US County Data");
-		console.log(json);
-		d3.json(
-			"https://raw.githubusercontent.com/no-stack-dub-sack/testable-projects-fcc/master/src/data/choropleth_map/for_user_education.json"
-		).then((data) => {
-			console.log("US Education Data");
-			console.log(data);
-		});
+	).then((geo) => {
+		console.log(geo);
+		let path = d3.geoPath();
+
+		const svg = d3.select("main").append("svg");
+		svg
+			.selectAll("path")
+			.data(geo.objects.counties.geometries)
+			.enter()
+			.append("path")
+			.attr("d", path);
 	});
+
+	// console.log("US County Data");
+	// console.log(geo);
+	// console.log("US Education Data");
+	// console.log(data);
+
 	// const req = new XMLHttpRequest();
 	// req.open(
 	// 	"GET",
