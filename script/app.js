@@ -24,7 +24,19 @@
 // Remember to use the Read-Search-Ask method if you get stuck.
 
 document.addEventListener("DOMContentLoaded", function() {
-	// const d3 = require("d3");
+	const d3 = require("d3");
+	d3.json(
+		"https://raw.githubusercontent.com/no-stack-dub-sack/testable-projects-fcc/master/src/data/choropleth_map/counties.json"
+	).then((json) => {
+		console.log("US County Data");
+		console.log(json);
+		d3.json(
+			"https://raw.githubusercontent.com/no-stack-dub-sack/testable-projects-fcc/master/src/data/choropleth_map/for_user_education.json"
+		).then((data) => {
+			console.log("US Education Data");
+			console.log(data);
+		});
+	});
 	// const req = new XMLHttpRequest();
 	// req.open(
 	// 	"GET",
