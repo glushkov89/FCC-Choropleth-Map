@@ -17,9 +17,9 @@ body {
 	font-size: smaller;
 }
 
-/* #title {
+#title {
 	font-size: larger;
-} */
+}
 
 #label {
 	font-size: smaller;
@@ -29,9 +29,10 @@ body {
 	font-size: smaller;
 }
 
-.cell:hover {
-	stroke-width: 1;
-	stroke: black;
+.states {
+	fill: none;
+	stroke: rgb(252, 104, 104);
+	stroke-linejoin: round;
 }
 
 /* .county {

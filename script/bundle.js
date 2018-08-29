@@ -18392,7 +18392,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			const mg = { t: 70, b: 90, r: 30, l: 70 };
 			//Diag
 			const d = {
-				h: 500,
+				h: 600,
 				w: 1000
 			};
 			//SVG
@@ -18413,6 +18413,8 @@ document.addEventListener("DOMContentLoaded", function() {
 				"#253494",
 				"#081d58"
 			];
+			//Legend rect
+			const lg = { h: 15, w: 50 };
 
 			/*----------Color scale------------*/
 			const color = d3
@@ -18459,7 +18461,8 @@ document.addEventListener("DOMContentLoaded", function() {
 				.attr("width", s.w);
 			const map = svg
 				.append("g")
-				.attr("transform", `translate(${mg.l},${mg.t})`)
+				.attr("transform", `translate(${mg.l},${mg.t})`);
+			map
 				.selectAll("path")
 				.data(topojson.feature(geo, geo.objects.counties).features)
 				.enter()
@@ -18493,6 +18496,83 @@ document.addEventListener("DOMContentLoaded", function() {
 						.duration(300)
 						.style("opacity", 0);
 				});
+
+			map
+				.append("path")
+				.datum(topojson.mesh(geo, geo.objects.states, (a, b) => a !== b))
+				.attr("class", "states")
+				.attr("d", path);
+
+			/*----------Legend------------*/
+			const legend = svg.append("g").attr("id", "legend");
+			legend
+				.selectAll("rect")
+				.data(clr)
+				.enter()
+				.append("rect")
+				.attr("x", (d, i) => i * lg.w)
+				.attr("height", lg.h)
+				.attr("width", lg.w)
+				.attr("fill", (d) => d)
+				.attr("stroke", "black")
+				.style("stroke-width", "0.2");
+			//Legend scale
+			const lgSc = d3
+				.scaleLinear()
+				.domain(color.domain())
+				.range([0, lg.w * clr.length]);
+			const tickVals = color.range().reduce((acc, d, i) => {
+				let tmp = color.invertExtent(d);
+				acc.push(tmp[0]);
+				if (i === color.range().length - 1) acc.push(tmp[1]);
+				return acc;
+			}, []);
+			//Legend axis
+			const lgAxis = d3
+				.axisBottom(lgSc)
+				.tickFormat(d3.format(".1f"))
+				.tickValues(tickVals);
+			legend
+				.append("g")
+				.call(lgAxis)
+				.attr("id", "lg-axis")
+				.attr("transform", `translate(0,${lg.h})`);
+			//Centering legend in lower margin
+			legend.attr(
+				"transform",
+				`translate(${mg.l +
+					(d.w - legend.node().getBoundingClientRect().width) / 2},${mg.t})`
+			);
+
+			/*----------Title + Description------------*/
+			const title = svg
+				.append("text")
+				.attr("id", "title")
+				.text("United States Educational Attainment");
+			const description = svg
+				.append("text")
+				.attr("id", "description")
+				.html(
+					"Percentage of adults age 25 and older with a bachelor's degree or higher (2010-2014)"
+				);
+			//Centering title and description in data and top margin
+			title
+				.attr(
+					"x",
+					mg.l + d.w / 2 - title.node().getBoundingClientRect().width / 2
+				)
+				.attr("y", title.node().getBoundingClientRect().height / 2 + 20);
+			description
+				.attr(
+					"x",
+					mg.l + d.w / 2 - description.node().getBoundingClientRect().width / 2
+				)
+				.attr(
+					"y",
+					title.node().getBoundingClientRect().height +
+						description.node().getBoundingClientRect().height +
+						10
+				);
 		});
 	});
 
