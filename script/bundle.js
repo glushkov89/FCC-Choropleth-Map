@@ -18379,20 +18379,121 @@ Object.defineProperty(exports, "event", {get: function() { return d3Selection.ev
 
 document.addEventListener("DOMContentLoaded", function() {
 	const d3 = require("d3");
-
 	d3.json(
-		"https://raw.githubusercontent.com/no-stack-dub-sack/testable-projects-fcc/master/src/data/choropleth_map/counties.json"
-	).then((geo) => {
-		console.log(geo);
-		let path = d3.geoPath();
+		"https://raw.githubusercontent.com/no-stack-dub-sack/testable-projects-fcc/master/src/data/choropleth_map/for_user_education.json"
+	).then((data) => {
+		d3.json(
+			"https://raw.githubusercontent.com/no-stack-dub-sack/testable-projects-fcc/master/src/data/choropleth_map/counties.json"
+		).then((geo) => {
+			console.log(data);
+			console.log(geo);
 
-		const svg = d3.select("main").append("svg");
-		svg
-			.selectAll("path")
-			.data(geo.objects.counties.geometries)
-			.enter()
-			.append("path")
-			.attr("d", path);
+			//Margins
+			const mg = { t: 70, b: 90, r: 30, l: 70 };
+			//Diag
+			const d = {
+				h: 500,
+				w: 1000
+			};
+			//SVG
+			const s = {
+				h: mg.t + d.h + mg.b,
+				w: mg.l + d.w + mg.r,
+				i: "svg-canvas"
+			};
+			//COLORBREWER
+			const clr = [
+				"#ffffd9",
+				"#edf8b1",
+				"#c7e9b4",
+				"#7fcdbb",
+				"#41b6c4",
+				"#1d91c0",
+				"#225ea8",
+				"#253494",
+				"#081d58"
+			];
+
+			/*----------Color scale------------*/
+			const color = d3
+				.scaleQuantize()
+				.domain([
+					d3.min(data, (d) => d.bachelorsOrHigher),
+					d3.max(data, (d) => d.bachelorsOrHigher)
+				])
+				.range(clr);
+
+			/*----------Tooltip------------*/
+
+			const tooltipParse = (id) => {
+				let data = findData(id);
+				return `${data.area_name}, ${data.state}: ${data.bachelorsOrHigher}%`;
+			};
+
+			let tooltipDiv = d3
+				.select("body")
+				.append("div")
+				.style("opacity", 0)
+				.attr("id", "tooltip")
+				.attr("class", "mytooltip")
+				.attr("data-education", 0);
+
+			/*----------Map------------*/
+
+			const findData = (id) => {
+				let tmp = {
+					// bachelorsOrHigher: "N/A",
+					// fips: "N/A"
+				};
+				data.forEach((obj) => {
+					if (obj.fips === id) tmp = { ...obj };
+				});
+				return tmp;
+			};
+
+			let path = d3.geoPath();
+			const svg = d3
+				.select("main")
+				.append("svg")
+				.attr("height", s.h)
+				.attr("width", s.w);
+			const map = svg
+				.append("g")
+				.attr("transform", `translate(${mg.l},${mg.t})`)
+				.selectAll("path")
+				.data(topojson.feature(geo, geo.objects.counties).features)
+				.enter()
+				.append("path")
+				.attr("d", path)
+				.attr("class", "county")
+				.attr("fill", (d) => {
+					let tmp = findData(d.id).bachelorsOrHigher;
+					return tmp === "N/A" ? "red" : color(tmp);
+				})
+				.style("stroke", "black")
+				.style("stroke-width", "0.2")
+				.attr("data-fips", (d) => findData(d.id).fips)
+				.attr("data-education", (d) => findData(d.id).bachelorsOrHigher)
+				.on("mouseover", (d) => {
+					let id = d.id;
+					tooltipDiv
+						.html(tooltipParse(id))
+						.attr("data-education", findData(id).bachelorsOrHigher)
+						.style("left", d3.event.pageX + 10 + "px")
+						.style("top", d3.event.pageY - 20 + "px");
+					tooltipDiv
+						.transition()
+						.duration(100)
+						.style("opacity", 0.9);
+					//.attr("data-education", () => "Hello World");
+				})
+				.on("mouseout", () => {
+					tooltipDiv
+						.transition()
+						.duration(300)
+						.style("opacity", 0);
+				});
+		});
 	});
 
 	// console.log("US County Data");
@@ -18426,20 +18527,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	// 		w: mg.l + d.w + mg.r,
 	// 		i: "svg-canvas"
 	// 	};
-	// 	//COLORBREWER
-	// 	const clr = [
-	// 		"#a50026",
-	// 		"#d73027",
-	// 		"#f46d43",
-	// 		"#fdae61",
-	// 		"#fee090",
-	// 		"#ffffbf",
-	// 		"#e0f3f8",
-	// 		"#abd9e9",
-	// 		"#74add1",
-	// 		"#4575b4",
-	// 		"#313695"
-	// 	];
+
 	// 	//Legend
 	// 	const lg = { h: 15, w: 30 };
 	// 	//Month names for y-axis

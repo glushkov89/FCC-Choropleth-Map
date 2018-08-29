@@ -34,6 +34,11 @@ body {
 	stroke: black;
 }
 
+/* .county {
+    stroke-width: 0.2;
+    stroke: black;
+} */
+
 div.mytooltip {
 	font-family: "Nunito", sans-serif;
 	font-size: smaller;
@@ -50,14 +55,11 @@ div.mytooltip {
 	pointer-events: none;
 }
 
-/* svg {
-    background-color: rgb(225, 243, 243);
-    font-family: "Nunito", sans-serif;
-    display: block;
-    margin: 5% auto;
-    border-radius: 4px;
-    box-shadow: 0px 0px 5px 0px #000;
-} */
+svg {
+	font-family: "Nunito", sans-serif;
+	display: block;
+	margin: 5% auto;
+}
 
 .fa {
 	font-size: 5vh;
